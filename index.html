@@ -592,7 +592,7 @@ function renderMarketPage(m){
   <div class="card">
     <div class="card-title">${ML[m]} — Bütçe & Özet</div>
     <div class="budget-section">
-      <div class="budget-item"><label>BAŞLANGIÇ BÜTÇESİ (TL)</label><input type="number" id="${m}-budget" value="${S.markets[m].budget||0}" onchange="updateBudget('${m}')"></div>
+      <div class="budget-item"><label>BAŞLANGIÇ BÜTÇESİ (TL)</label><input type="number" id="${m}-budget" value="${S.markets[m].budget||0}" onchange="updateBudget('${m}')" ${editMode?'':'readonly'} style="${editMode?'':'color:var(--muted2);cursor:default'}"></div>
       <div class="budget-item"><label>MEVCUT DURUM</label><div class="bval" id="${m}-current">—</div></div>
       <div class="budget-item dd-box"><label style="color:var(--red)">MAX DRAWDOWN</label><div class="bval" id="${m}-dd" style="color:var(--red);font-family:var(--font-mono)">—</div></div>
     </div>
