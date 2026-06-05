@@ -8,29 +8,23 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/tabler-icons.min.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <style>
 :root{
   --bg:#0c0c0c;--surface:#161616;--surface2:#1e1e1e;
   --border:#242424;--border2:#2e2e2e;
   --text:#f0ede6;--muted:#555;--muted2:#888;
   --accent:#c9b89a;--green:#4caf72;--red:#e05555;
-  --blue:#5599e0;--purple:#9b72e0;--teal:#3ec6b0;--amber:#d4943a;
+  --blue:#5599e0;--purple:#9b72e0;--amber:#d4943a;
   --font-mono:'Space Mono',monospace;--font:'Syne',sans-serif;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;}
 
-/* ── SCREENS ── */
 .screen{display:none;min-height:100vh;}
 .screen.active{display:block;}
 
-/* ══ LOCK SCREEN ══ */
-#screen-lock{
-  display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);
-  z-index:500;align-items:center;justify-content:center;
-  backdrop-filter:blur(8px);
-}
+/* ── LOCK OVERLAY ── */
+#screen-lock{position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);}
 #screen-lock.active{display:flex;}
 .lock-box{background:var(--surface);border:0.5px solid var(--border2);border-radius:18px;padding:2rem;width:100%;max-width:320px;text-align:center;}
 .lock-icon{font-size:2rem;color:var(--accent);margin-bottom:1rem;}
@@ -41,140 +35,102 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .lock-btn{width:100%;font-family:var(--font);font-weight:700;font-size:0.85rem;background:var(--accent);color:#0a0a0a;border:none;border-radius:10px;padding:0.75rem;cursor:pointer;}
 .lock-err{font-size:0.75rem;color:var(--red);margin-top:0.5rem;min-height:1rem;}
 
-/* ── EDIT MODE INDICATOR ── */
+/* ── EDIT BAR ── */
 .edit-bar{display:none;position:fixed;top:0;left:0;right:0;z-index:400;background:#1a1500;border-bottom:1px solid var(--amber);padding:0.4rem 1rem;font-size:0.72rem;color:var(--amber);font-weight:600;letter-spacing:0.08em;align-items:center;justify-content:space-between;}
 .edit-bar.show{display:flex;}
-.edit-bar-right{display:flex;gap:0.5rem;align-items:center;}
 .btn-exit-edit{font-family:var(--font);font-size:0.7rem;background:transparent;border:0.5px solid var(--amber);color:var(--amber);padding:0.25rem 0.7rem;border-radius:6px;cursor:pointer;}
 
-/* ── LOCK BTN (floating) ── */
+/* ── LOCK FAB ── */
 .lock-fab{position:fixed;bottom:1.5rem;right:1.5rem;z-index:300;width:40px;height:40px;border-radius:50%;background:var(--surface);border:0.5px solid var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color 0.15s;font-size:1rem;color:var(--muted);}
 .lock-fab:hover{border-color:var(--accent);color:var(--accent);}
 
-/* ══════════════════════════════
-   PROFILE SCREEN
-══════════════════════════════ */
-#screen-profile{
-  display:none;flex-direction:column;align-items:center;
-  padding:3rem 1rem 5rem;max-width:480px;margin:0 auto;
-}
-#screen-profile.active{display:flex;}
+/* ══════════ PROFILE ══════════ */
+#screen-profile.active{display:flex;flex-direction:column;align-items:center;padding:3.5rem 1rem 5rem;max-width:480px;margin:0 auto;}
 
-.avatar-ring{
-  width:90px;height:90px;border-radius:50%;
-  background:linear-gradient(135deg,#c9b89a,#7a5c3a);
-  display:flex;align-items:center;justify-content:center;
-  font-size:1.8rem;font-weight:800;color:#fff;
-  margin-bottom:1.1rem;letter-spacing:-1px;flex-shrink:0;
-}
-.p-name{font-size:1.6rem;font-weight:800;letter-spacing:-0.5px;text-align:center;margin-bottom:0.25rem;}
+.avatar-ring{width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,#c9b89a,#7a5c3a);display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:800;color:#fff;margin-bottom:1rem;letter-spacing:-1px;flex-shrink:0;}
+.p-name{font-size:1.65rem;font-weight:800;letter-spacing:-0.5px;text-align:center;margin-bottom:0.2rem;}
 .p-name span{color:var(--accent);}
-.p-role{font-size:0.78rem;color:var(--muted2);letter-spacing:0.12em;text-transform:uppercase;text-align:center;margin-bottom:0.5rem;}
-.p-divider{width:28px;height:1px;background:var(--accent);opacity:0.4;margin:0.9rem auto 1.6rem;}
+.p-divider{width:28px;height:1px;background:var(--accent);opacity:0.4;margin:1rem auto 1.8rem;}
 .sec-label{font-size:0.65rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);width:100%;margin-bottom:0.6rem;padding-left:2px;}
 
-.doc-card{
-  width:100%;background:var(--surface);border:0.5px solid var(--border);
-  border-radius:14px;padding:0.85rem 1rem;
-  display:flex;align-items:center;gap:0.9rem;margin-bottom:0.55rem;
-  cursor:pointer;transition:background 0.15s,border-color 0.15s,transform 0.13s;
-  text-decoration:none;color:inherit;
-}
+.doc-card{width:100%;background:var(--surface);border:0.5px solid var(--border);border-radius:14px;padding:1rem 1.1rem;display:flex;align-items:center;gap:0.9rem;margin-bottom:0.6rem;cursor:pointer;transition:background 0.15s,border-color 0.15s,transform 0.13s;text-decoration:none;color:inherit;}
 .doc-card:hover{background:var(--surface2);border-color:var(--border2);transform:translateY(-1px);}
-.doc-icon{width:40px;height:40px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.doc-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;}
 .doc-body{flex:1;min-width:0;}
-.doc-title{font-size:0.9rem;font-weight:600;color:var(--text);margin-bottom:2px;}
-.doc-sub{font-size:0.72rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.doc-title{font-size:0.92rem;font-weight:600;color:var(--text);margin-bottom:2px;}
+.doc-sub{font-size:0.73rem;color:var(--muted);}
 .doc-arrow{color:var(--border2);font-size:1rem;flex-shrink:0;}
 
-.trading-card{
-  width:100%;background:linear-gradient(135deg,#161610,#1a1a12);
-  border:0.5px solid #2e2c1a;border-radius:14px;padding:1rem 1.1rem;
-  display:flex;align-items:center;gap:0.9rem;margin-bottom:0.55rem;
-  cursor:pointer;transition:border-color 0.15s,transform 0.13s;
-}
+.trading-card{width:100%;background:linear-gradient(135deg,#161610,#1a1a12);border:0.5px solid #2e2c1a;border-radius:14px;padding:1rem 1.1rem;display:flex;align-items:center;gap:0.9rem;margin-bottom:0.6rem;cursor:pointer;transition:border-color 0.15s,transform 0.13s;}
 .trading-card:hover{border-color:var(--accent);transform:translateY(-1px);}
-.trading-icon{width:40px;height:40px;border-radius:9px;background:#26200a;display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:var(--amber);flex-shrink:0;}
-.trading-body{flex:1;}
-.trading-title{font-size:0.9rem;font-weight:700;color:var(--accent);}
-.trading-sub{font-size:0.72rem;color:#6a6040;}
+.trading-icon{width:42px;height:42px;border-radius:10px;background:#26200a;display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:var(--amber);flex-shrink:0;}
+.trading-title{font-size:0.92rem;font-weight:700;color:var(--accent);}
+.trading-sub{font-size:0.73rem;color:#6a6040;}
 
-/* LINKEDIN ONLY */
-.linkedin-btn{
-  width:100%;background:var(--surface);border:0.5px solid var(--border);
-  border-radius:12px;padding:0.85rem 1rem;
-  display:flex;align-items:center;gap:0.9rem;margin-bottom:0.55rem;
-  cursor:pointer;transition:background 0.15s,transform 0.13s;
-  text-decoration:none;color:inherit;
-}
-.linkedin-btn:hover{background:var(--surface2);transform:translateY(-1px);}
-.li-icon{width:40px;height:40px;border-radius:9px;background:#111d2a;display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:var(--blue);flex-shrink:0;}
-
-.contact-card{width:100%;background:var(--surface);border:0.5px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:0.55rem;}
-.contact-row{display:flex;align-items:center;gap:0.75rem;padding:0.7rem 1rem;}
-.contact-row+.contact-row{border-top:0.5px solid var(--border);}
-.contact-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);opacity:0.5;flex-shrink:0;}
-.contact-lbl{font-size:0.78rem;color:var(--muted);min-width:52px;}
-.contact-val{font-size:0.78rem;color:var(--muted2);margin-left:auto;text-align:right;}
-.p-footer{font-size:0.65rem;color:#2a2a2a;margin-top:2rem;letter-spacing:0.08em;}
-
-/* ══ CV SHEET ══ */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:150;display:none;align-items:flex-end;justify-content:center;}
+/* ══════════ CV SHEET ══════════ */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.82);z-index:150;display:none;align-items:flex-end;justify-content:center;}
 .overlay.open{display:flex;}
-.sheet{background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-width:680px;max-height:92vh;overflow-y:auto;display:flex;flex-direction:column;}
-.sheet-header{padding:1.25rem 1.5rem 0;flex-shrink:0;}
-.sheet-handle{width:36px;height:3px;background:var(--border2);border-radius:2px;margin:0 auto 1.25rem;}
-.sheet-title{font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;color:var(--text);display:flex;align-items:center;justify-content:space-between;}
-.sheet-close{background:transparent;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;}
-.sheet-body{padding:0 1.5rem 2rem;flex:1;overflow-y:auto;}
+.sheet{background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-width:720px;max-height:93vh;overflow-y:auto;display:flex;flex-direction:column;}
+.sheet-header{padding:1.25rem 1.5rem 0;flex-shrink:0;position:sticky;top:0;background:var(--surface);z-index:10;border-bottom:0.5px solid var(--border);}
+.sheet-handle{width:36px;height:3px;background:var(--border2);border-radius:2px;margin:0 auto 1rem;}
+.sheet-title{font-size:1.05rem;font-weight:700;margin-bottom:1rem;color:var(--text);display:flex;align-items:center;justify-content:space-between;}
+.sheet-close{background:transparent;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;padding:4px;}
+.sheet-body{padding:1.5rem;flex:1;}
 
-/* CV LAYOUT */
-.cv-view{display:block;}
+/* CV VIEW */
+.cv-hero{display:flex;align-items:flex-start;gap:1.25rem;margin-bottom:1.75rem;padding-bottom:1.5rem;border-bottom:0.5px solid var(--border);}
+.cv-photo-wrap{flex-shrink:0;position:relative;}
+.cv-photo{width:80px;height:80px;border-radius:12px;object-fit:cover;display:block;}
+.cv-photo-placeholder{width:80px;height:80px;border-radius:12px;background:var(--surface2);border:1px dashed var(--border2);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;cursor:pointer;}
+.cv-photo-placeholder i{font-size:1.4rem;color:var(--muted);}
+.cv-photo-placeholder span{font-size:0.6rem;color:var(--muted);letter-spacing:0.08em;}
+.cv-photo-upload{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.cv-hero-info{flex:1;}
+.cv-hero-name{font-size:1.2rem;font-weight:800;margin-bottom:3px;}
+.cv-hero-title{font-size:0.8rem;color:var(--muted);margin-bottom:0.5rem;}
+
+.cv-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;}
+@media(max-width:540px){.cv-grid{grid-template-columns:1fr;}}
+
+.cv-section{margin-bottom:1.25rem;}
+.cv-section h3{font-size:0.68rem;font-weight:700;letter-spacing:0.14em;color:var(--accent);text-transform:uppercase;margin-bottom:0.7rem;padding-bottom:0.45rem;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:0.4rem;}
+.cv-row{display:flex;align-items:flex-start;gap:0.55rem;margin-bottom:0.45rem;}
+.cv-row i{color:var(--accent);font-size:0.85rem;flex-shrink:0;margin-top:2px;}
+.cv-row span{font-size:0.83rem;color:var(--muted2);line-height:1.5;}
+.cv-text{font-size:0.83rem;color:var(--muted2);line-height:1.7;white-space:pre-wrap;}
+.cv-cert-item{display:flex;align-items:center;gap:0.6rem;margin-bottom:0.4rem;}
+.cv-cert-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0;}
+.cv-cert-text{font-size:0.83rem;color:var(--muted2);}
+.cv-cert-year{font-family:var(--font-mono);font-size:0.7rem;color:var(--muted);margin-left:auto;}
+.cv-lang-item{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem;}
+.cv-lang-name{font-size:0.83rem;color:var(--muted2);}
+.cv-lang-level{font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:20px;background:var(--surface2);color:var(--accent);border:0.5px solid var(--border2);}
+
+/* CV EDIT FORM */
 .cv-edit{display:none;}
-.cv-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;}
-@media(max-width:520px){.cv-grid{grid-template-columns:1fr;}}
-
-.cv-block{margin-bottom:1.5rem;}
-.cv-block h3{font-size:0.72rem;font-weight:700;letter-spacing:0.14em;color:var(--accent);text-transform:uppercase;margin-bottom:0.75rem;padding-bottom:0.5rem;border-bottom:0.5px solid var(--border);}
-.cv-text{font-size:0.88rem;color:var(--muted2);line-height:1.7;white-space:pre-wrap;}
-.cv-info-row{display:flex;align-items:center;gap:0.6rem;margin-bottom:0.5rem;}
-.cv-info-row i{color:var(--accent);font-size:0.9rem;flex-shrink:0;}
-.cv-info-row span{font-size:0.85rem;color:var(--muted2);}
-
-.cv-textarea{width:100%;font-family:var(--font);font-size:0.88rem;background:var(--surface2);border:0.5px solid var(--border2);color:var(--text);border-radius:10px;padding:0.75rem 0.9rem;outline:none;resize:vertical;min-height:80px;line-height:1.6;transition:border-color 0.15s;}
-.cv-textarea:focus{border-color:var(--accent);}
-.cv-input{width:100%;font-family:var(--font);font-size:0.88rem;background:var(--surface2);border:0.5px solid var(--border2);color:var(--text);border-radius:10px;padding:0.65rem 0.9rem;outline:none;transition:border-color 0.15s;margin-bottom:0.45rem;}
+.cv-form-sec{margin-bottom:1.25rem;}
+.cv-form-sec h3{font-size:0.68rem;font-weight:700;letter-spacing:0.14em;color:var(--accent);text-transform:uppercase;margin-bottom:0.65rem;padding-bottom:0.4rem;border-bottom:0.5px solid var(--border);}
+.cv-input{width:100%;font-family:var(--font);font-size:0.87rem;background:var(--surface2);border:0.5px solid var(--border2);color:var(--text);border-radius:10px;padding:0.62rem 0.9rem;outline:none;transition:border-color 0.15s;margin-bottom:0.4rem;}
 .cv-input:focus{border-color:var(--accent);}
-.cv-form-section{margin-bottom:1.25rem;}
-.cv-form-section h3{font-size:0.72rem;font-weight:700;letter-spacing:0.14em;color:var(--accent);text-transform:uppercase;margin-bottom:0.6rem;padding-bottom:0.4rem;border-bottom:0.5px solid var(--border);}
+.cv-textarea{width:100%;font-family:var(--font);font-size:0.87rem;background:var(--surface2);border:0.5px solid var(--border2);color:var(--text);border-radius:10px;padding:0.7rem 0.9rem;outline:none;resize:vertical;min-height:75px;line-height:1.6;transition:border-color 0.15s;}
+.cv-textarea:focus{border-color:var(--accent);}
+.input-row{display:flex;gap:0.5rem;}
+.input-row .cv-input{margin-bottom:0;}
 
-/* CERT */
-.cert-list{display:flex;flex-direction:column;gap:0.45rem;margin-bottom:0.9rem;}
-.cert-item{display:flex;align-items:center;gap:0.7rem;background:var(--surface2);border:0.5px solid var(--border);border-radius:10px;padding:0.65rem 0.9rem;}
-.cert-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0;}
-.cert-name{flex:1;font-size:0.85rem;color:var(--muted2);}
-.cert-year{font-family:var(--font-mono);font-size:0.7rem;color:var(--muted);}
-
-/* ══════════════════════════════
-   TRADING SCREEN
-══════════════════════════════ */
+/* ══════════ TRADING ══════════ */
 #screen-trading{display:none;}
 #screen-trading.active{display:block;}
-
 .t-nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;border-bottom:0.5px solid var(--border);position:sticky;top:0;background:rgba(12,12,12,0.96);backdrop-filter:blur(8px);z-index:100;}
 .t-back{background:transparent;border:0.5px solid var(--border2);color:var(--muted2);font-family:var(--font);font-size:0.75rem;padding:0.4rem 0.8rem;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all 0.15s;}
 .t-back:hover{border-color:var(--accent);color:var(--accent);}
 .t-logo{font-weight:700;font-size:0.9rem;color:var(--accent);}
 .btn-save{background:transparent;border:0.5px solid var(--border2);color:var(--muted2);font-family:var(--font);font-size:0.75rem;padding:0.4rem 0.8rem;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all 0.15s;}
 .btn-save:hover{border-color:var(--accent);color:var(--accent);}
-
 .t-tabs{display:flex;border-bottom:0.5px solid var(--border);padding:0 1.5rem;overflow-x:auto;}
 .t-tab{font-family:var(--font);font-size:0.8rem;font-weight:500;color:var(--muted);background:transparent;border:none;padding:0.9rem 1rem;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.15s;white-space:nowrap;}
 .t-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
-
 .t-page{display:none;padding:1.5rem;max-width:900px;margin:0 auto;}
 .t-page.active{display:block;}
-
 .card{background:var(--surface);border:0.5px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1rem;}
 .card-title{font-size:0.7rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem;}
 .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:0.75rem;margin-bottom:1rem;}
@@ -182,27 +138,20 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .stat-label{font-size:0.68rem;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.4rem;}
 .stat-val{font-family:var(--font-mono);font-size:1.05rem;font-weight:700;color:var(--text);}
 .stat-val.green{color:var(--green);}.stat-val.red{color:var(--red);}.stat-val.accent{color:var(--accent);}
-
 .budget-section{display:flex;gap:0.75rem;margin-bottom:1.25rem;flex-wrap:wrap;}
 .budget-item{flex:1;min-width:120px;background:var(--surface2);border:0.5px solid var(--border);border-radius:10px;padding:0.85rem;}
 .budget-item.dd-box{border-color:#2a1414;}
 .budget-item label{font-size:0.68rem;color:var(--muted);display:block;margin-bottom:0.4rem;letter-spacing:0.08em;}
 .budget-item input{font-family:var(--font-mono);font-size:0.9rem;background:transparent;border:none;color:var(--text);width:100%;outline:none;}
-.budget-item input:read-only{color:var(--muted2);}
 .bval{font-family:var(--font-mono);font-size:0.9rem;margin-top:2px;}
-
 .table-wrap{overflow-x:auto;}
 table{width:100%;border-collapse:collapse;}
 thead th{font-size:0.63rem;font-weight:600;letter-spacing:0.1em;color:var(--muted);text-align:left;padding:0.5rem 0.7rem;border-bottom:0.5px solid var(--border);}
 tbody td{padding:0.6rem 0.7rem;border-bottom:0.5px solid var(--border);color:var(--muted2);font-family:var(--font-mono);font-size:0.76rem;}
 tbody tr:hover td{background:var(--surface2);}
 .badge{display:inline-block;font-size:0.63rem;font-weight:700;padding:2px 7px;border-radius:20px;letter-spacing:0.05em;}
-.bg{background:#122515;color:var(--green);}
-.br{background:#2a1414;color:var(--red);}
-.bb{background:#111d2a;color:var(--blue);}
-
+.bg{background:#122515;color:var(--green);}.br{background:#2a1414;color:var(--red);}.bb{background:#111d2a;color:var(--blue);}
 .chart-wrap{position:relative;height:220px;margin-top:0.5rem;}
-
 .pdf-upload-area{border:1px dashed var(--border2);border-radius:12px;padding:1.75rem;text-align:center;cursor:pointer;transition:border-color 0.15s;margin-bottom:1rem;}
 .pdf-upload-area:hover{border-color:var(--accent);}
 .pdf-upload-area i{font-size:1.8rem;color:var(--muted);margin-bottom:0.4rem;display:block;}
@@ -212,72 +161,66 @@ tbody tr:hover td{background:var(--surface2);}
 .pdf-item-icon{color:var(--red);font-size:1.1rem;}
 .pdf-item-name{flex:1;font-size:0.8rem;color:var(--muted2);text-decoration:none;}
 .pdf-item-size{font-family:var(--font-mono);font-size:0.68rem;color:var(--muted);}
-
-.btn-add{font-family:var(--font);font-weight:700;font-size:0.78rem;letter-spacing:0.05em;background:var(--accent);color:#0a0a0a;border:none;border-radius:10px;padding:0.65rem 1.4rem;cursor:pointer;transition:opacity 0.15s;}
+.btn-add{font-family:var(--font);font-weight:700;font-size:0.78rem;background:var(--accent);color:#0a0a0a;border:none;border-radius:10px;padding:0.65rem 1.4rem;cursor:pointer;transition:opacity 0.15s;}
 .btn-add:hover{opacity:0.85;}
+.btn-sm-accent{font-family:var(--font);font-weight:600;font-size:0.75rem;background:transparent;border:0.5px solid var(--accent);color:var(--accent);border-radius:8px;padding:0.4rem 0.9rem;cursor:pointer;}
 .btn-danger{background:transparent;border:0.5px solid var(--red);color:var(--red);font-family:var(--font);font-size:0.7rem;padding:0.28rem 0.65rem;border-radius:7px;cursor:pointer;}
-
+.btn-cancel{font-family:var(--font);font-size:0.78rem;background:transparent;border:0.5px solid var(--border2);color:var(--muted2);padding:0.6rem 1.1rem;border-radius:8px;cursor:pointer;}
 .trade-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:0.7rem;margin-bottom:1rem;}
 .fg{display:flex;flex-direction:column;gap:0.32rem;}
 .fg label{font-size:0.68rem;color:var(--muted);letter-spacing:0.08em;}
 .fg input,.fg select{font-family:var(--font-mono);font-size:0.83rem;background:var(--surface2);border:0.5px solid var(--border2);color:var(--text);border-radius:8px;padding:0.55rem 0.7rem;outline:none;transition:border-color 0.15s;}
 .fg input:focus,.fg select:focus{border-color:var(--accent);}
 .fg select option{background:var(--surface2);}
-
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:200;display:none;align-items:center;justify-content:center;padding:1rem;}
 .modal-bg.open{display:flex;}
 .modal{background:var(--surface);border:0.5px solid var(--border2);border-radius:16px;padding:1.5rem;width:100%;max-width:520px;max-height:85vh;overflow-y:auto;}
 .modal h2{font-size:1rem;font-weight:700;margin-bottom:1.25rem;}
 .modal-footer{display:flex;gap:0.5rem;justify-content:flex-end;margin-top:1.25rem;}
-.btn-cancel{font-family:var(--font);font-size:0.78rem;background:transparent;border:0.5px solid var(--border2);color:var(--muted2);padding:0.6rem 1.1rem;border-radius:8px;cursor:pointer;}
 
-/* edit-only elements hidden by default */
-.edit-only{display:none !important;}
-body.edit-mode .edit-only{display:flex !important;}
-body.edit-mode .edit-only-block{display:block !important;}
-.edit-only-block{display:none !important;}
+/* edit-only */
+.edit-only{display:none!important;}
+body.edit-mode .edit-only{display:inline-flex!important;}
+body.edit-mode .edit-only-block{display:block!important;}
+.edit-only-block{display:none!important;}
+body.edit-mode .edit-only-flex{display:flex!important;}
+.edit-only-flex{display:none!important;}
 
 @media(max-width:520px){.t-page{padding:1rem;}.trade-form{grid-template-columns:1fr 1fr;}}
 </style>
 </head>
 <body>
 
-<!-- ══ LOCK SCREEN ══ -->
-<div class="screen active" id="screen-lock">
-  <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1rem;">
-    <div class="lock-box">
-      <div class="lock-icon"><i class="ti ti-lock"></i></div>
-      <div class="lock-title">Düzenleme Modu</div>
-      <div class="lock-sub">Şifreyi girerek düzenleme moduna geçebilirsin</div>
-      <input class="lock-input" type="password" id="lock-input" placeholder="••••••" maxlength="20" onkeydown="if(event.key==='Enter')tryUnlock()">
-      <button class="lock-btn" onclick="tryUnlock()">Giriş Yap</button>
-      <div class="lock-err" id="lock-err"></div>
-      <div style="margin-top:1rem;">
-        <button style="background:transparent;border:none;color:var(--muted);font-family:var(--font);font-size:0.75rem;cursor:pointer;" onclick="goViewMode()">Düzenlemeden devam et →</button>
-      </div>
+<!-- LOCK OVERLAY -->
+<div id="screen-lock">
+  <div class="lock-box">
+    <div class="lock-icon"><i class="ti ti-lock"></i></div>
+    <div class="lock-title">Düzenleme Modu</div>
+    <div class="lock-sub">Şifrenizi girin</div>
+    <input class="lock-input" type="password" id="lock-input" placeholder="••••••" maxlength="20" onkeydown="if(event.key==='Enter')tryUnlock()">
+    <button class="lock-btn" onclick="tryUnlock()">Giriş Yap</button>
+    <div class="lock-err" id="lock-err"></div>
+    <div style="margin-top:1rem;">
+      <button style="background:transparent;border:none;color:var(--muted);font-family:var(--font);font-size:0.75rem;cursor:pointer;" onclick="closeLock()">Kapat ✕</button>
     </div>
   </div>
 </div>
 
-<!-- ══ EDIT BAR ══ -->
+<!-- EDIT BAR -->
 <div class="edit-bar" id="edit-bar">
   <span><i class="ti ti-pencil" style="margin-right:6px"></i>Düzenleme Modu Aktif</span>
-  <div class="edit-bar-right">
-    <button class="btn-exit-edit" onclick="exitEditMode()"><i class="ti ti-lock"></i> Kilitle</button>
-  </div>
+  <button class="btn-exit-edit" onclick="exitEditMode()"><i class="ti ti-lock"></i> Kilitle</button>
 </div>
 
-<!-- ══ LOCK FAB ══ -->
-<button class="lock-fab" id="lock-fab" onclick="showLockScreen()" title="Düzenleme modu">
-  <i class="ti ti-lock"></i>
-</button>
+<!-- LOCK FAB -->
+<button class="lock-fab" id="lock-fab" onclick="showLockScreen()"><i class="ti ti-lock"></i></button>
 
-<!-- ══════════════════ PROFILE SCREEN ══════════════════ -->
-<div class="screen" id="screen-profile">
-  <div style="max-width:480px;margin:0 auto;padding:3rem 1rem 5rem;display:flex;flex-direction:column;align-items:center;">
+<!-- ══════════ PROFILE SCREEN ══════════ -->
+<div class="screen active" id="screen-profile">
+  <div style="max-width:480px;margin:0 auto;padding:3.5rem 1.25rem 5rem;display:flex;flex-direction:column;align-items:center;">
+
     <div class="avatar-ring" id="p-avatar">NA</div>
     <div class="p-name" id="p-name-display">Nusret <span>Adıgüzel</span></div>
-    <div class="p-role" id="p-role-display">Trader &amp; Yatırımcı</div>
     <div class="p-divider"></div>
 
     <div class="sec-label">Belgeler</div>
@@ -286,152 +229,135 @@ body.edit-mode .edit-only-block{display:block !important;}
       <div class="doc-icon" style="background:#2a1414;color:var(--red);"><i class="ti ti-file-cv"></i></div>
       <div class="doc-body">
         <div class="doc-title">Özgeçmiş</div>
-        <div class="doc-sub">Deneyim, eğitim ve beceriler</div>
+        <div class="doc-sub">Kişisel bilgiler, eğitim, sertifikalar</div>
       </div>
       <div class="doc-arrow"><i class="ti ti-chevron-right"></i></div>
     </div>
 
-    <div class="doc-card" onclick="openSheet('cert-sheet')">
-      <div class="doc-icon" style="background:#261d0e;color:var(--amber);"><i class="ti ti-award"></i></div>
-      <div class="doc-body">
-        <div class="doc-title">Sertifikalar</div>
-        <div class="doc-sub" id="cert-sub">SPL ve diğer lisanslar</div>
-      </div>
-      <div class="doc-arrow"><i class="ti ti-chevron-right"></i></div>
-    </div>
-
-    <div style="height:0.4rem;width:100%"></div>
+    <div style="height:0.5rem;width:100%"></div>
     <div class="sec-label">Portföy</div>
 
     <div class="trading-card" onclick="goTrading()">
       <div class="trading-icon"><i class="ti ti-chart-candle"></i></div>
-      <div class="trading-body">
+      <div style="flex:1;">
         <div class="trading-title">Trading Portfolio</div>
         <div class="trading-sub">VİOP · Kripto · Forex — işlem geçmişi ve istatistikler</div>
       </div>
       <div style="color:#3a3020;font-size:1rem;flex-shrink:0;"><i class="ti ti-arrow-right"></i></div>
     </div>
 
-    <div style="height:0.4rem;width:100%"></div>
-    <div class="sec-label">Kanallar</div>
-
-    <a class="linkedin-btn" id="soc-linkedin" href="#" target="_blank">
-      <div class="li-icon"><i class="ti ti-brand-linkedin"></i></div>
-      <div class="doc-body">
-        <div class="doc-title">LinkedIn</div>
-        <div class="doc-sub" id="li-sub">Profili görüntüle</div>
-      </div>
-      <div class="doc-arrow"><i class="ti ti-chevron-right"></i></div>
-    </a>
-
-    <div style="height:0.4rem;width:100%"></div>
-    <div class="sec-label">İletişim</div>
-
-    <div class="contact-card" style="width:100%">
-      <div class="contact-row">
-        <div class="contact-dot"></div>
-        <span class="contact-lbl">E-posta</span>
-        <span class="contact-val" id="c-email">—</span>
-      </div>
-      <div class="contact-row">
-        <div class="contact-dot"></div>
-        <span class="contact-lbl">Telefon</span>
-        <span class="contact-val" id="c-phone">—</span>
-      </div>
-      <div class="contact-row">
-        <div class="contact-dot"></div>
-        <span class="contact-lbl">Konum</span>
-        <span class="contact-val" id="c-city">Gaziantep, Türkiye</span>
-      </div>
-    </div>
-
-    <div class="p-footer">nusretadigüzel.bio</div>
   </div>
 </div>
 
-<!-- ══════════════════ CV SHEET ══════════════════ -->
+<!-- ══════════ CV SHEET ══════════ -->
 <div class="overlay" id="cv-sheet">
   <div class="sheet">
     <div class="sheet-header">
       <div class="sheet-handle"></div>
       <div class="sheet-title">
         Özgeçmiş
-        <button class="sheet-close" onclick="closeSheet('cv-sheet')"><i class="ti ti-x"></i></button>
+        <div style="display:flex;gap:0.5rem;align-items:center;">
+          <button class="btn-sm-accent edit-only" onclick="toggleCVEdit()"><i class="ti ti-pencil"></i> Düzenle</button>
+          <button class="sheet-close" onclick="closeSheet('cv-sheet')"><i class="ti ti-x"></i></button>
+        </div>
       </div>
     </div>
     <div class="sheet-body">
 
-      <!-- VIEW MODE -->
-      <div class="cv-view" id="cv-view">
-        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:0.5px solid var(--border);">
-          <div class="avatar-ring" style="width:56px;height:56px;font-size:1.2rem;margin:0;" id="cv-avatar-sm">NA</div>
-          <div>
-            <div style="font-size:1.1rem;font-weight:700;" id="cv-display-name">Nusret Adıgüzel</div>
-            <div style="font-size:0.78rem;color:var(--muted);" id="cv-display-title">Trader & Yatırımcı</div>
+      <!-- ── CV VIEW ── -->
+      <div id="cv-view">
+
+        <!-- Hero: foto + isim -->
+        <div class="cv-hero">
+          <div class="cv-photo-wrap">
+            <img id="cv-photo-img" class="cv-photo" src="" alt="" style="display:none">
+            <div class="cv-photo-placeholder edit-only-flex" id="cv-photo-placeholder" onclick="document.getElementById('cv-photo-file').click()">
+              <i class="ti ti-camera"></i>
+              <span>FOTOĞRAF</span>
+            </div>
+            <div class="cv-photo-placeholder" id="cv-photo-empty" style="display:none">
+              <i class="ti ti-user" style="color:var(--muted)"></i>
+            </div>
+            <input type="file" id="cv-photo-file" accept="image/*" style="display:none" onchange="handlePhoto(event)">
+          </div>
+          <div class="cv-hero-info">
+            <div class="cv-hero-name" id="cv-display-name">Nusret Adıgüzel</div>
+            <div class="cv-hero-title" id="cv-display-title">Trader & Yatırımcı</div>
           </div>
         </div>
+
         <div class="cv-grid">
+          <!-- Sol kolon -->
           <div>
-            <div class="cv-block">
-              <h3>İletişim</h3>
-              <div class="cv-info-row"><i class="ti ti-mail"></i><span id="cv-display-email">—</span></div>
-              <div class="cv-info-row"><i class="ti ti-phone"></i><span id="cv-display-phone">—</span></div>
-              <div class="cv-info-row"><i class="ti ti-map-pin"></i><span id="cv-display-city">—</span></div>
+            <div class="cv-section">
+              <h3><i class="ti ti-user-circle"></i>Kişisel Bilgiler</h3>
+              <div class="cv-row"><i class="ti ti-phone"></i><span id="cv-display-phone">—</span></div>
+              <div class="cv-row"><i class="ti ti-mail"></i><span id="cv-display-email">—</span></div>
+              <div class="cv-row"><i class="ti ti-map-pin"></i><span id="cv-display-address">—</span></div>
             </div>
-            <div class="cv-block">
-              <h3>Beceriler</h3>
+            <div class="cv-section">
+              <h3><i class="ti ti-award"></i>Sertifika / Lisans</h3>
+              <div id="cv-display-certs"><span style="font-size:0.8rem;color:var(--muted)">—</span></div>
+            </div>
+            <div class="cv-section">
+              <h3><i class="ti ti-language"></i>Dil Bilgisi</h3>
+              <div id="cv-display-langs"><span style="font-size:0.8rem;color:var(--muted)">—</span></div>
+            </div>
+          </div>
+          <!-- Sağ kolon -->
+          <div>
+            <div class="cv-section">
+              <h3><i class="ti ti-school"></i>Eğitim Bilgileri</h3>
+              <div class="cv-text" id="cv-display-education">—</div>
+            </div>
+            <div class="cv-section">
+              <h3><i class="ti ti-tool"></i>Yetenek & Beceriler</h3>
               <div class="cv-text" id="cv-display-skills">—</div>
             </div>
           </div>
-          <div>
-            <div class="cv-block">
-              <h3>Hakkımda</h3>
-              <div class="cv-text" id="cv-display-summary">—</div>
-            </div>
-            <div class="cv-block">
-              <h3>Eğitim</h3>
-              <div class="cv-text" id="cv-display-education">—</div>
-            </div>
+        </div>
+
+      </div><!-- /cv-view -->
+
+      <!-- ── CV EDIT FORM ── -->
+      <div class="cv-edit" id="cv-edit">
+        <div class="cv-form-sec">
+          <h3>Kişisel Bilgiler</h3>
+          <input class="cv-input" id="f-name" placeholder="Ad Soyad" oninput="liveSync()">
+          <input class="cv-input" id="f-title" placeholder="Ünvan / Pozisyon" oninput="liveSync()">
+          <input class="cv-input" id="f-phone" placeholder="Telefon">
+          <input class="cv-input" id="f-email" placeholder="E-posta">
+          <input class="cv-input" id="f-address" placeholder="Adres / Şehir">
+        </div>
+        <div class="cv-form-sec">
+          <h3>Eğitim Bilgileri</h3>
+          <textarea class="cv-textarea" id="f-education" placeholder="Okul adı, bölüm, mezuniyet yılı..."></textarea>
+        </div>
+        <div class="cv-form-sec">
+          <h3>Sertifika / Lisans</h3>
+          <div id="cert-edit-list" style="margin-bottom:0.75rem;display:flex;flex-direction:column;gap:0.4rem;"></div>
+          <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+            <input class="cv-input" id="cert-name-inp" placeholder="Sertifika / Lisans adı" style="flex:2;margin:0">
+            <input class="cv-input" id="cert-year-inp" placeholder="Yıl" style="flex:1;min-width:70px;margin:0">
+            <button class="btn-add" onclick="addCert()" style="flex-shrink:0">+ Ekle</button>
           </div>
         </div>
-        <div class="cv-block">
-          <h3>İş Deneyimi</h3>
-          <div class="cv-text" id="cv-display-experience">—</div>
+        <div class="cv-form-sec">
+          <h3>Yetenek & Beceriler</h3>
+          <textarea class="cv-textarea" id="f-skills" placeholder="Teknik analiz, risk yönetimi, Excel..."></textarea>
         </div>
-        <!-- EDIT BUTTON — only in edit mode -->
-        <button class="btn-add edit-only-block" style="margin-top:0.5rem;" onclick="showCVEdit()"><i class="ti ti-pencil"></i> Düzenle</button>
-      </div>
-
-      <!-- EDIT MODE -->
-      <div class="cv-edit" id="cv-edit">
-        <div class="cv-form-section">
-          <h3>Kişisel</h3>
-          <input class="cv-input" id="cv-name" placeholder="Ad Soyad" oninput="syncProfile()">
-          <input class="cv-input" id="cv-title-field" placeholder="Ünvan / Pozisyon" oninput="syncProfile()">
-          <input class="cv-input" id="cv-email" placeholder="E-posta" oninput="syncProfile()">
-          <input class="cv-input" id="cv-phone" placeholder="Telefon" oninput="syncProfile()">
-          <input class="cv-input" id="cv-city" placeholder="Şehir" oninput="syncProfile()">
-          <input class="cv-input" id="cv-linkedin-url" placeholder="LinkedIn URL">
+        <div class="cv-form-sec">
+          <h3>Dil Bilgisi</h3>
+          <div id="lang-edit-list" style="margin-bottom:0.75rem;display:flex;flex-direction:column;gap:0.4rem;"></div>
+          <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+            <input class="cv-input" id="lang-name-inp" placeholder="Dil (örn. İngilizce)" style="flex:2;margin:0">
+            <input class="cv-input" id="lang-level-inp" placeholder="Seviye (örn. B2)" style="flex:1;min-width:80px;margin:0">
+            <button class="btn-add" onclick="addLang()" style="flex-shrink:0">+ Ekle</button>
+          </div>
         </div>
-        <div class="cv-form-section">
-          <h3>Hakkımda</h3>
-          <textarea class="cv-textarea" id="cv-summary" placeholder="Kendinizi kısaca tanıtın..."></textarea>
-        </div>
-        <div class="cv-form-section">
-          <h3>İş Deneyimi</h3>
-          <textarea class="cv-textarea" id="cv-experience" placeholder="Şirket, pozisyon, tarih..."></textarea>
-        </div>
-        <div class="cv-form-section">
-          <h3>Eğitim</h3>
-          <textarea class="cv-textarea" id="cv-education" placeholder="Okul, bölüm, mezuniyet..."></textarea>
-        </div>
-        <div class="cv-form-section">
-          <h3>Beceriler</h3>
-          <textarea class="cv-textarea" id="cv-skills" placeholder="Teknik analiz, risk yönetimi..."></textarea>
-        </div>
-        <div style="display:flex;gap:0.75rem;">
+        <div style="display:flex;gap:0.75rem;padding-top:0.5rem;">
           <button class="btn-add" onclick="saveCVEdit()">Kaydet</button>
-          <button class="btn-cancel" onclick="hideCVEdit()">İptal</button>
+          <button class="btn-cancel" onclick="toggleCVEdit()">İptal</button>
         </div>
       </div>
 
@@ -439,31 +365,7 @@ body.edit-mode .edit-only-block{display:block !important;}
   </div>
 </div>
 
-<!-- ══════════════════ CERT SHEET ══════════════════ -->
-<div class="overlay" id="cert-sheet">
-  <div class="sheet">
-    <div class="sheet-header">
-      <div class="sheet-handle"></div>
-      <div class="sheet-title">
-        Sertifikalar
-        <button class="sheet-close" onclick="closeSheet('cert-sheet')"><i class="ti ti-x"></i></button>
-      </div>
-    </div>
-    <div class="sheet-body">
-      <div class="cert-list" id="cert-list"></div>
-      <div class="edit-only-block" id="cert-add-form" style="display:none">
-        <div style="display:flex;gap:0.6rem;flex-wrap:wrap;margin-top:0.5rem;">
-          <input class="cv-input" id="cert-name-input" placeholder="Sertifika adı (örn. SPL 1. Düzey)" style="flex:2;margin:0">
-          <input class="cv-input" id="cert-year-input" placeholder="Yıl" style="flex:1;min-width:70px;margin:0">
-          <button class="btn-add" onclick="addCert()" style="flex-shrink:0">+ Ekle</button>
-        </div>
-      </div>
-      <div id="cert-empty" style="font-size:0.82rem;color:var(--muted);padding:0.5rem 0;display:none">Henüz sertifika eklenmemiş.</div>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════════ TRADING SCREEN ══════════════════ -->
+<!-- ══════════ TRADING SCREEN ══════════ -->
 <div class="screen" id="screen-trading">
   <nav class="t-nav">
     <button class="t-back" onclick="goProfile()"><i class="ti ti-arrow-left"></i> Geri</button>
@@ -486,7 +388,7 @@ body.edit-mode .edit-only-block{display:block !important;}
   <div class="t-page" id="tpage-forex"></div>
 </div>
 
-<!-- ══ TRADE MODAL ══ -->
+<!-- TRADE MODAL -->
 <div class="modal-bg" id="trade-modal">
   <div class="modal">
     <h2 id="modal-title">İşlem Ekle</h2>
@@ -499,153 +401,173 @@ body.edit-mode .edit-only-block{display:block !important;}
 </div>
 
 <script>
-// ── ŞIFRE ──
-const PASSWORD = '1234'; // <-- buradan değiştir
-
+const PASSWORD='6951118';
 const MARKETS=['viop','kripto','forex'];
 const ML={viop:'VİOP',kripto:'Kripto',forex:'Forex'};
 const MC={viop:'#5599e0',kripto:'#9b72e0',forex:'#3ec6b0'};
 const MP={viop:'BIST30, XU030...',kripto:'BTC/USDT...',forex:'EUR/USD, XAU/USD...'};
 
-let editMode = false;
-let CI={},curMarket=null,editIdx=null;
+let editMode=false,CI={},curMarket=null,editIdx=null;
+let cvEditOpen=false;
 
 let S={
   name:'Nusret Adıgüzel',title:'Trader & Yatırımcı',
-  email:'',phone:'',city:'Gaziantep, Türkiye',
-  summary:'',experience:'',education:'',skills:'',
-  linkedinUrl:'',
-  certs:[],
+  phone:'',email:'',address:'',
+  education:'',skills:'',photo:'',
+  certs:[],langs:[],
   markets:{viop:{budget:0,trades:[],pdfs:[]},kripto:{budget:0,trades:[],pdfs:[]},forex:{budget:0,trades:[],pdfs:[]}}
 };
 
+// ── LOCK ──
+function showLockScreen(){document.getElementById('lock-input').value='';document.getElementById('lock-err').textContent='';document.getElementById('screen-lock').classList.add('active');}
+function closeLock(){document.getElementById('screen-lock').classList.remove('active');}
 function tryUnlock(){
-  const val=document.getElementById('lock-input').value;
-  if(val===PASSWORD){
-    editMode=true;
-    document.body.classList.add('edit-mode');
+  const v=document.getElementById('lock-input').value;
+  if(v===PASSWORD){
+    editMode=true;document.body.classList.add('edit-mode');
     document.getElementById('screen-lock').classList.remove('active');
-    document.getElementById('screen-profile').classList.add('active');
     document.getElementById('edit-bar').classList.add('show');
     document.getElementById('lock-fab').style.display='none';
-    document.getElementById('cert-add-form').style.display='block';
     document.getElementById('lock-input').value='';
     document.getElementById('lock-err').textContent='';
+    updateCVDisplay();
   } else {
     document.getElementById('lock-err').textContent='Hatalı şifre!';
     document.getElementById('lock-input').value='';
   }
 }
-
-function goViewMode(){
-  editMode=false;
-  document.getElementById('screen-lock').classList.remove('active');
-  document.getElementById('screen-profile').classList.add('active');
-  document.getElementById('edit-bar').classList.remove('show');
-}
-
-function showLockScreen(){
-  document.getElementById('screen-profile').classList.remove('active');
-  document.getElementById('screen-trading').classList.remove('active');
-  document.getElementById('screen-lock').classList.add('active');
-}
-
 function exitEditMode(){
-  editMode=false;
-  document.body.classList.remove('edit-mode');
+  editMode=false;document.body.classList.remove('edit-mode');
   document.getElementById('edit-bar').classList.remove('show');
   document.getElementById('lock-fab').style.display='flex';
-  document.getElementById('cert-add-form').style.display='none';
+  if(cvEditOpen){toggleCVEdit();}
   saveAll();
 }
 
+// ── STATE ──
 function loadState(){
-  const r=localStorage.getItem('tpf_v5');
+  const r=localStorage.getItem('tpf_v6');
   if(r){try{S=JSON.parse(r);}catch(e){}}
   MARKETS.forEach(m=>{if(!S.markets[m])S.markets[m]={budget:0,trades:[],pdfs:[]};});
-  applyProfile();
-  renderCerts();
+  if(!S.certs)S.certs=[];if(!S.langs)S.langs=[];
+  applyAll();
   MARKETS.forEach(m=>renderMarketPage(m));
   renderGenel();
 }
+function saveAll(){localStorage.setItem('tpf_v6',JSON.stringify(S));showToast('Kaydedildi ✓');}
 
-function saveAll(){
-  localStorage.setItem('tpf_v5',JSON.stringify(S));
-  showToast('Kaydedildi ✓');
+function applyAll(){
+  updateAvatar();
+  updateCVDisplay();
 }
 
-function syncProfile(){
-  const n=document.getElementById('cv-name')?.value||S.name;
-  const t=document.getElementById('cv-title-field')?.value||S.title;
-  const e=document.getElementById('cv-email')?.value||S.email;
-  const ph=document.getElementById('cv-phone')?.value||S.phone;
-  const c=document.getElementById('cv-city')?.value||S.city;
+function liveSync(){
+  const n=document.getElementById('f-name')?.value;
+  if(n){
+    const parts=n.trim().split(' ');
+    const ini=parts.length>=2?parts[0][0]+parts[parts.length-1][0]:(parts[0]?parts[0].slice(0,2):'?');
+    document.getElementById('p-avatar').textContent=ini.toUpperCase();
+    document.getElementById('p-name-display').innerHTML=parts.length>1?parts.slice(0,-1).join(' ')+' <span>'+parts.slice(-1)[0]+'</span>':'<span>'+n+'</span>';
+  }
+}
+
+function updateAvatar(){
+  const n=S.name||'NA';
   const parts=n.trim().split(' ');
   const ini=parts.length>=2?parts[0][0]+parts[parts.length-1][0]:(parts[0]?parts[0].slice(0,2):'?');
-  document.getElementById('p-avatar').textContent=ini.toUpperCase();
-  document.getElementById('cv-avatar-sm').textContent=ini.toUpperCase();
-  document.getElementById('p-name-display').innerHTML=parts.length>1?parts.slice(0,-1).join(' ')+' <span>'+parts.slice(-1)[0]+'</span>':'<span>'+n+'</span>';
-  document.getElementById('p-role-display').textContent=t;
-  document.getElementById('c-email').textContent=e||'—';
-  document.getElementById('c-phone').textContent=ph||'—';
-  document.getElementById('c-city').textContent=c||'—';
-}
-
-function applyProfile(){
-  const fields={name:S.name,'title-field':S.title,email:S.email,phone:S.phone,city:S.city,summary:S.summary,experience:S.experience,education:S.education,skills:S.skills,'linkedin-url':S.linkedinUrl||''};
-  Object.entries(fields).forEach(([k,v])=>{const el=document.getElementById('cv-'+k);if(el)el.value=v||'';});
-  syncProfile();
-  updateCVDisplay();
-  // linkedin
-  const liBtn=document.getElementById('soc-linkedin');
-  const liSub=document.getElementById('li-sub');
-  if(S.linkedinUrl){liBtn.href=S.linkedinUrl;liBtn.onclick=null;}
-  if(liSub) liSub.textContent=S.linkedinUrl?'Profili görüntüle':'LinkedIn linki eklenmemiş';
+  const av=document.getElementById('p-avatar');if(av)av.textContent=ini.toUpperCase();
+  const nd=document.getElementById('p-name-display');
+  if(nd) nd.innerHTML=parts.length>1?parts.slice(0,-1).join(' ')+' <span>'+parts.slice(-1)[0]+'</span>':'<span>'+n+'</span>';
 }
 
 function updateCVDisplay(){
-  setTxt('cv-display-name',S.name||'—');
-  setTxt('cv-display-title',S.title||'—');
-  setTxt('cv-display-email',S.email||'—');
-  setTxt('cv-display-phone',S.phone||'—');
-  setTxt('cv-display-city',S.city||'—');
-  setTxt('cv-display-summary',S.summary||'—');
-  setTxt('cv-display-experience',S.experience||'—');
-  setTxt('cv-display-education',S.education||'—');
-  setTxt('cv-display-skills',S.skills||'—');
+  setText('cv-display-name',S.name||'—');
+  setText('cv-display-title',S.title||'—');
+  setText('cv-display-phone',S.phone||'—');
+  setText('cv-display-email',S.email||'—');
+  setText('cv-display-address',S.address||'—');
+  setText('cv-display-education',S.education||'—');
+  setText('cv-display-skills',S.skills||'—');
+  // photo
+  const img=document.getElementById('cv-photo-img');
+  const ph=document.getElementById('cv-photo-placeholder');
+  const pe=document.getElementById('cv-photo-empty');
+  if(S.photo){img.src=S.photo;img.style.display='block';if(ph)ph.style.display='none';if(pe)pe.style.display='none';}
+  else{img.style.display='none';if(pe&&!editMode)pe.style.display='flex';if(ph&&editMode)ph.style.display='flex';}
+  // certs
+  const ce=document.getElementById('cv-display-certs');
+  if(ce) ce.innerHTML=S.certs.length?S.certs.map(c=>`<div class="cv-cert-item"><div class="cv-cert-dot"></div><div class="cv-cert-text">${c.name}</div><div class="cv-cert-year">${c.year||''}</div></div>`).join(''):'<span style="font-size:0.8rem;color:var(--muted)">—</span>';
+  // langs
+  const le=document.getElementById('cv-display-langs');
+  if(le) le.innerHTML=S.langs.length?S.langs.map(l=>`<div class="cv-lang-item"><span class="cv-lang-name">${l.name}</span><span class="cv-lang-level">${l.level}</span></div>`).join(''):'<span style="font-size:0.8rem;color:var(--muted)">—</span>';
 }
-function setTxt(id,v){const el=document.getElementById(id);if(el)el.textContent=v;}
+function setText(id,v){const el=document.getElementById(id);if(el)el.textContent=v;}
 
-function showCVEdit(){
-  document.getElementById('cv-view').style.display='none';
-  document.getElementById('cv-edit').style.display='block';
+// photo
+function handlePhoto(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{S.photo=ev.target.result;updateCVDisplay();saveAll();};
+  r.readAsDataURL(f);
 }
-function hideCVEdit(){
-  document.getElementById('cv-view').style.display='block';
-  document.getElementById('cv-edit').style.display='none';
+
+// ── CV EDIT ──
+function toggleCVEdit(){
+  cvEditOpen=!cvEditOpen;
+  document.getElementById('cv-view').style.display=cvEditOpen?'none':'block';
+  document.getElementById('cv-edit').style.display=cvEditOpen?'block':'none';
+  if(cvEditOpen){
+    setVal('f-name',S.name);setVal('f-title',S.title);setVal('f-phone',S.phone);
+    setVal('f-email',S.email);setVal('f-address',S.address);
+    setVal('f-education',S.education);setVal('f-skills',S.skills);
+    renderCertEditList();renderLangEditList();
+  }
 }
 function saveCVEdit(){
-  S.name=gv('cv-name')||S.name;
-  S.title=gv('cv-title-field')||S.title;
-  S.email=gv('cv-email');S.phone=gv('cv-phone');S.city=gv('cv-city');
-  S.summary=gv('cv-summary');S.experience=gv('cv-experience');
-  S.education=gv('cv-education');S.skills=gv('cv-skills');
-  S.linkedinUrl=gv('cv-linkedin-url');
-  applyProfile();saveAll();hideCVEdit();
+  S.name=gv('f-name')||S.name;S.title=gv('f-title')||S.title;
+  S.phone=gv('f-phone');S.email=gv('f-email');S.address=gv('f-address');
+  S.education=gv('f-education');S.skills=gv('f-skills');
+  applyAll();saveAll();
+  cvEditOpen=true;toggleCVEdit();
 }
 
-function goTrading(){
-  document.getElementById('screen-profile').classList.remove('active');
-  document.getElementById('screen-trading').classList.add('active');
-  renderGenel();
+// ── CERTS ──
+function addCert(){
+  const name=document.getElementById('cert-name-inp').value.trim();
+  const year=document.getElementById('cert-year-inp').value.trim();
+  if(!name)return;
+  S.certs.push({name,year});
+  document.getElementById('cert-name-inp').value='';
+  document.getElementById('cert-year-inp').value='';
+  renderCertEditList();saveAll();updateCVDisplay();
 }
-function goProfile(){
-  document.getElementById('screen-trading').classList.remove('active');
-  document.getElementById('screen-profile').classList.add('active');
+function delCert(i){S.certs.splice(i,1);renderCertEditList();saveAll();updateCVDisplay();}
+function renderCertEditList(){
+  const el=document.getElementById('cert-edit-list');if(!el)return;
+  el.innerHTML=S.certs.map((c,i)=>`<div style="display:flex;align-items:center;gap:0.5rem;background:var(--surface2);border:0.5px solid var(--border);border-radius:8px;padding:0.5rem 0.75rem;"><span style="flex:1;font-size:0.82rem;color:var(--muted2)">${c.name}</span><span style="font-family:var(--font-mono);font-size:0.7rem;color:var(--muted)">${c.year||''}</span><button class="btn-danger" onclick="delCert(${i})">Sil</button></div>`).join('');
 }
+
+// ── LANGS ──
+function addLang(){
+  const name=document.getElementById('lang-name-inp').value.trim();
+  const level=document.getElementById('lang-level-inp').value.trim();
+  if(!name)return;
+  S.langs.push({name,level});
+  document.getElementById('lang-name-inp').value='';
+  document.getElementById('lang-level-inp').value='';
+  renderLangEditList();saveAll();updateCVDisplay();
+}
+function delLang(i){S.langs.splice(i,1);renderLangEditList();saveAll();updateCVDisplay();}
+function renderLangEditList(){
+  const el=document.getElementById('lang-edit-list');if(!el)return;
+  el.innerHTML=S.langs.map((l,i)=>`<div style="display:flex;align-items:center;gap:0.5rem;background:var(--surface2);border:0.5px solid var(--border);border-radius:8px;padding:0.5rem 0.75rem;"><span style="flex:1;font-size:0.82rem;color:var(--muted2)">${l.name}</span><span style="font-size:0.72rem;color:var(--accent)">${l.level}</span><button class="btn-danger" onclick="delLang(${i})">Sil</button></div>`).join('');
+}
+
+// ── NAV ──
+function goTrading(){document.getElementById('screen-profile').classList.remove('active');document.getElementById('screen-trading').classList.add('active');renderGenel();}
+function goProfile(){document.getElementById('screen-trading').classList.remove('active');document.getElementById('screen-profile').classList.add('active');}
 function openSheet(id){document.getElementById(id).classList.add('open');}
 function closeSheet(id){document.getElementById(id).classList.remove('open');}
-
 function showTPage(id){
   document.querySelectorAll('.t-page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.t-tab').forEach(t=>t.classList.remove('active'));
@@ -654,22 +576,23 @@ function showTPage(id){
   if(id==='genel')renderGenel();
 }
 
+// ── DRAWDOWN ──
 function calcDD(budget,trades){
   if(!trades.length||!budget)return 0;
-  const sorted=[...trades].sort((a,b)=>new Date(a.exitDate||a.entryDate||0)-new Date(b.exitDate||b.entryDate||0));
+  const s=[...trades].sort((a,b)=>new Date(a.exitDate||a.entryDate||0)-new Date(b.exitDate||b.entryDate||0));
   let eq=budget,peak=budget,dd=0;
-  sorted.forEach(t=>{eq+=parseFloat(t.pnl)||0;if(eq>peak)peak=eq;const d=peak>0?((peak-eq)/peak)*100:0;if(d>dd)dd=d;});
+  s.forEach(t=>{eq+=parseFloat(t.pnl)||0;if(eq>peak)peak=eq;const d=peak>0?((peak-eq)/peak)*100:0;if(d>dd)dd=d;});
   return dd;
 }
 
+// ── MARKET PAGE ──
 function renderMarketPage(m){
   const el=document.getElementById('tpage-'+m);
-  const ro=editMode?'':'readonly';
   el.innerHTML=`
   <div class="card">
     <div class="card-title">${ML[m]} — Bütçe & Özet</div>
     <div class="budget-section">
-      <div class="budget-item"><label>BAŞLANGIÇ BÜTÇESİ (TL)</label><input type="number" id="${m}-budget" value="${S.markets[m].budget||0}" onchange="updateBudget('${m}')" ${ro}></div>
+      <div class="budget-item"><label>BAŞLANGIÇ BÜTÇESİ (TL)</label><input type="number" id="${m}-budget" value="${S.markets[m].budget||0}" onchange="updateBudget('${m}')"></div>
       <div class="budget-item"><label>MEVCUT DURUM</label><div class="bval" id="${m}-current">—</div></div>
       <div class="budget-item dd-box"><label style="color:var(--red)">MAX DRAWDOWN</label><div class="bval" id="${m}-dd" style="color:var(--red);font-family:var(--font-mono)">—</div></div>
     </div>
@@ -688,7 +611,7 @@ function renderMarketPage(m){
   <div class="card">
     <div class="card-title"><i class="ti ti-paperclip" style="margin-right:6px"></i>Ekler / Kanıtlar</div>
     <div class="pdf-list" id="${m}-pdfs"></div>
-    <label class="pdf-upload-area edit-only-block" for="${m}-file" style="display:none"><i class="ti ti-upload"></i><p>PDF veya görsel ekle</p></label>
+    <label class="pdf-upload-area edit-only-block" for="${m}-file"><i class="ti ti-upload"></i><p>PDF veya görsel ekle</p></label>
     <input type="file" id="${m}-file" accept=".pdf,image/*" multiple style="display:none" onchange="handlePDF(event,'${m}')">
   </div>`;
   refreshMarket(m);
@@ -712,7 +635,6 @@ function refreshMarket(m){
   const ce=document.getElementById(m+'-count');if(ce)ce.textContent=trades.length+' işlem';
   renderTable(m);renderChart(m);renderPDFs(m);
 }
-
 function sc(l,v,c){return`<div class="stat-card"><div class="stat-label">${l}</div><div class="stat-val ${c}">${v}</div></div>`;}
 function tDur(t){if(!t.entryDate||!t.exitDate)return 0;const a=new Date(t.entryDate+(t.entryTime?' '+t.entryTime:''));const b=new Date(t.exitDate+(t.exitTime?' '+t.exitTime:''));return Math.max(0,(b-a)/60000);}
 function fmtD(m){if(m<60)return Math.round(m)+'dk';if(m<1440)return Math.round(m/60)+'sa';return Math.round(m/1440)+'gün';}
@@ -720,7 +642,7 @@ function fmtD(m){if(m<60)return Math.round(m)+'dk';if(m<1440)return Math.round(m
 function renderTable(m){
   const d=S.markets[m],el=document.getElementById(m+'-table');if(!el)return;
   if(!d.trades.length){el.innerHTML='<p style="font-size:0.78rem;color:var(--muted);padding:0.8rem 0">Henüz işlem yok.</p>';return;}
-  const rows=d.trades.map((t,i)=>{const pnl=parseFloat(t.pnl)||0;const cls=pnl>0?'bg':pnl<0?'br':'bb';const delBtn=editMode?`<button class="btn-danger" onclick="delTrade('${m}',${i})">Sil</button>`:'';return`<tr><td>${t.entryDate||'—'} ${t.entryTime||''}</td><td style="color:var(--text);font-weight:600">${t.symbol||'—'}</td><td>${t.lot||'—'}</td><td>${t.direction==='long'?'<span class="badge bg">LONG</span>':'<span class="badge br">SHORT</span>'}</td><td>${t.entryPrice||'—'}</td><td>${t.exitPrice||'—'}</td><td>${t.exitDate||'—'} ${t.exitTime||''}</td><td><span class="badge ${cls}">${pnl>=0?'+':''}${pnl.toLocaleString('tr-TR')} TL</span></td><td>${t.note||''}</td><td>${delBtn}</td></tr>`;}).join('');
+  const rows=d.trades.map((t,i)=>{const pnl=parseFloat(t.pnl)||0;const cls=pnl>0?'bg':pnl<0?'br':'bb';const del=editMode?`<button class="btn-danger" onclick="delTrade('${m}',${i})">Sil</button>`:'';return`<tr><td>${t.entryDate||'—'} ${t.entryTime||''}</td><td style="color:var(--text);font-weight:600">${t.symbol||'—'}</td><td>${t.lot||'—'}</td><td>${t.direction==='long'?'<span class="badge bg">LONG</span>':'<span class="badge br">SHORT</span>'}</td><td>${t.entryPrice||'—'}</td><td>${t.exitPrice||'—'}</td><td>${t.exitDate||'—'} ${t.exitTime||''}</td><td><span class="badge ${cls}">${pnl>=0?'+':''}${pnl.toLocaleString('tr-TR')} TL</span></td><td>${t.note||''}</td><td>${del}</td></tr>`;}).join('');
   el.innerHTML=`<table><thead><tr><th>GİRİŞ</th><th>SEMBOL</th><th>LOT</th><th>YÖN</th><th>G.FİYAT</th><th>Ç.FİYAT</th><th>ÇIKIŞ</th><th>K/Z</th><th>NOT</th><th></th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
@@ -748,10 +670,10 @@ function renderGenel(){
   document.getElementById('genel-table').innerHTML=`<div class="table-wrap"><table><thead><tr><th>PİYASA</th><th>BÜTÇE</th><th>DEĞER</th><th>NET P&L</th><th style="color:var(--red)">MAX DD</th><th>İŞLEM</th><th>GETİRİ</th></tr></thead><tbody>${rows.join('')}</tbody></table></div>`;
   if(CI['chart-genel']){CI['chart-genel'].destroy();}
   const canvas=document.getElementById('chart-genel');if(!canvas)return;
-  let allTrades=[];MARKETS.forEach(m=>S.markets[m].trades.forEach(t=>allTrades.push({...t})));
-  allTrades.sort((a,b)=>new Date(a.exitDate||a.entryDate||0)-new Date(b.exitDate||b.entryDate||0));
+  let all=[];MARKETS.forEach(m=>S.markets[m].trades.forEach(t=>all.push({...t})));
+  all.sort((a,b)=>new Date(a.exitDate||a.entryDate||0)-new Date(b.exitDate||b.entryDate||0));
   let eq=tBudget;const labels=['Başlangıç'],data=[eq];
-  allTrades.forEach(t=>{eq+=parseFloat(t.pnl)||0;labels.push(t.symbol||'');data.push(eq);});
+  all.forEach(t=>{eq+=parseFloat(t.pnl)||0;labels.push(t.symbol||'');data.push(eq);});
   CI['chart-genel']=new Chart(canvas,{type:'line',data:{labels,datasets:[{data,borderColor:'#c9b89a',backgroundColor:'#c9b89a22',fill:true,tension:0.3,pointRadius:3,pointBackgroundColor:'#c9b89a',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.parsed.y.toLocaleString('tr-TR')+' TL'}}},scales:{x:{ticks:{color:'#555',font:{size:10}},grid:{color:'#1e1e1e'}},y:{ticks:{color:'#555',font:{size:10},callback:v=>v.toLocaleString('tr-TR')},grid:{color:'#1e1e1e'}}}}});
 }
 
@@ -776,6 +698,7 @@ function openModal(m,idx=null){
 }
 function closeModal(){document.getElementById('trade-modal').classList.remove('open');curMarket=null;editIdx=null;}
 function gv(id){const el=document.getElementById(id);return el?el.value:'';}
+function setVal(id,v){const el=document.getElementById(id);if(el)el.value=v||'';}
 function saveTrade(){
   if(!editMode)return;
   const trade={symbol:gv('f-sym'),lot:gv('f-lot'),direction:gv('f-dir'),entryPrice:gv('f-ep'),entryDate:gv('f-ed'),entryTime:gv('f-et'),exitPrice:gv('f-xp'),exitDate:gv('f-xd'),exitTime:gv('f-xt'),pnl:gv('f-pnl'),note:gv('f-note')};
@@ -784,26 +707,6 @@ function saveTrade(){
   if(document.getElementById('tpage-genel').classList.contains('active'))renderGenel();
 }
 function delTrade(m,i){if(!editMode)return;if(!confirm('Sil?'))return;S.markets[m].trades.splice(i,1);saveAll();refreshMarket(m);}
-
-function addCert(){
-  if(!editMode)return;
-  const name=document.getElementById('cert-name-input').value.trim();
-  const year=document.getElementById('cert-year-input').value.trim();
-  if(!name)return;
-  S.certs.push({name,year});
-  document.getElementById('cert-name-input').value='';
-  document.getElementById('cert-year-input').value='';
-  renderCerts();saveAll();
-}
-function renderCerts(){
-  const el=document.getElementById('cert-list');if(!el)return;
-  const emp=document.getElementById('cert-empty');
-  if(!S.certs.length){if(emp)emp.style.display='block';el.innerHTML='';return;}
-  if(emp)emp.style.display='none';
-  el.innerHTML=S.certs.map((c,i)=>{const delBtn=editMode?`<button class="btn-danger" onclick="delCert(${i})">Sil</button>`:'';return`<div class="cert-item"><div class="cert-dot"></div><div class="cert-name">${c.name}</div><div class="cert-year">${c.year||''}</div>${delBtn}</div>`;}).join('');
-  const sub=document.getElementById('cert-sub');if(sub)sub.textContent=S.certs.length+' sertifika';
-}
-function delCert(i){if(!editMode)return;S.certs.splice(i,1);renderCerts();saveAll();}
 
 function handlePDF(event,m){
   if(!editMode)return;
@@ -815,7 +718,7 @@ function handlePDF(event,m){
 }
 function renderPDFs(m){
   const el=document.getElementById(m+'-pdfs');if(!el)return;
-  el.innerHTML=S.markets[m].pdfs.map((p,i)=>{const delBtn=editMode?`<button class="btn-danger" onclick="delPDF('${m}',${i})">Sil</button>`:'';return`<div class="pdf-item"><i class="ti ${p.type&&p.type.includes('image')?'ti-photo':'ti-file-type-pdf'} pdf-item-icon"></i><a class="pdf-item-name" href="${p.data}" target="_blank" download="${p.name}">${p.name}</a><span class="pdf-item-size">${(p.size/1024).toFixed(1)} KB</span>${delBtn}</div>`;}).join('');
+  el.innerHTML=S.markets[m].pdfs.map((p,i)=>{const del=editMode?`<button class="btn-danger" onclick="delPDF('${m}',${i})">Sil</button>`:'';return`<div class="pdf-item"><i class="ti ${p.type&&p.type.includes('image')?'ti-photo':'ti-file-type-pdf'} pdf-item-icon"></i><a class="pdf-item-name" href="${p.data}" target="_blank" download="${p.name}">${p.name}</a><span class="pdf-item-size">${(p.size/1024).toFixed(1)} KB</span>${del}</div>`;}).join('');
 }
 function delPDF(m,i){if(!editMode)return;S.markets[m].pdfs.splice(i,1);renderPDFs(m);saveAll();}
 
