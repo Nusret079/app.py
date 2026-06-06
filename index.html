@@ -74,7 +74,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .sheet-header{padding:1.25rem 1.5rem 0;flex-shrink:0;position:sticky;top:0;background:var(--surface);z-index:10;border-bottom:0.5px solid var(--border);}
 .sheet-handle{width:36px;height:3px;background:var(--border2);border-radius:2px;margin:0 auto 1rem;}
 .sheet-title{font-size:1.05rem;font-weight:700;margin-bottom:1rem;color:var(--text);display:flex;align-items:center;justify-content:space-between;}
-.sheet-close{background:transparent;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;padding:4px;}
+.sheet-close{width:32px;height:32px;border-radius:50%;background:var(--surface2);border:0.5px solid var(--border2);color:var(--muted2);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;flex-shrink:0;}.sheet-close:hover{background:var(--red);border-color:var(--red);color:#fff;}
 .sheet-body{padding:1.5rem;flex:1;}
 
 /* CV VIEW */
@@ -121,7 +121,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 #screen-trading{display:none;}
 #screen-trading.active{display:block;}
 .t-nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;border-bottom:0.5px solid var(--border);position:sticky;top:0;background:rgba(12,12,12,0.96);backdrop-filter:blur(8px);z-index:100;}
-.t-back{background:transparent;border:0.5px solid var(--border2);color:var(--muted2);font-family:var(--font);font-size:0.75rem;padding:0.4rem 0.8rem;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all 0.15s;}
+.t-back{background:var(--surface2);border:0.5px solid var(--border2);color:var(--text);font-family:var(--font);font-size:0.78rem;font-weight:600;padding:0.45rem 1rem;border-radius:20px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.15s;}
 .t-back:hover{border-color:var(--accent);color:var(--accent);}
 .t-logo{font-weight:700;font-size:0.9rem;color:var(--accent);}
 .btn-save{background:transparent;border:0.5px solid var(--border2);color:var(--muted2);font-family:var(--font);font-size:0.75rem;padding:0.4rem 0.8rem;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all 0.15s;}
@@ -225,7 +225,7 @@ body.edit-mode .edit-only-flex{display:flex!important;}
 
     <div class="sec-label">Belgeler</div>
 
-    <div class="doc-card" onclick="openSheet('cv-sheet')">
+    <div class="doc-card" onclick="goCV()">
       <div class="doc-icon" style="background:#2a1414;color:var(--red);"><i class="ti ti-file-cv"></i></div>
       <div class="doc-body">
         <div class="doc-title">Özgeçmiş</div>
@@ -249,20 +249,14 @@ body.edit-mode .edit-only-flex{display:flex!important;}
   </div>
 </div>
 
-<!-- ══════════ CV SHEET ══════════ -->
-<div class="overlay" id="cv-sheet">
-  <div class="sheet">
-    <div class="sheet-header">
-      <div class="sheet-handle"></div>
-      <div class="sheet-title">
-        Özgeçmiş
-        <div style="display:flex;gap:0.5rem;align-items:center;">
-          <button class="btn-sm-accent edit-only" onclick="toggleCVEdit()"><i class="ti ti-pencil"></i> Düzenle</button>
-          <button class="sheet-close" onclick="closeSheet('cv-sheet')"><i class="ti ti-x"></i></button>
-        </div>
-      </div>
-    </div>
-    <div class="sheet-body">
+<!-- ══════════ CV SCREEN ══════════ -->
+<div class="screen" id="screen-cv">
+  <nav class="t-nav">
+    <button class="t-back" onclick="goProfile()"><i class="ti ti-arrow-left"></i> Geri</button>
+    <div class="t-logo">ÖZGEÇMİŞ</div>
+    <button class="btn-sm-accent edit-only" onclick="toggleCVEdit()"><i class="ti ti-pencil"></i> Düzenle</button>
+  </nav>
+  <div style="max-width:720px;margin:0 auto;padding:1.5rem;">
 
       <!-- ── CV VIEW ── -->
       <div id="cv-view">
@@ -311,6 +305,11 @@ body.edit-mode .edit-only-flex{display:flex!important;}
               <div class="cv-text" id="cv-display-education">—</div>
             </div>
             <div class="cv-section">
+              <div class="cv-section">
+                <h3><i class="ti ti-shield"></i>Askerlik Durumu</h3>
+                <div class="cv-row"><i class="ti ti-point"></i><span id="cv-display-military">—</span></div>
+                <div class="cv-row"><i class="ti ti-calendar"></i><span id="cv-display-military-date">—</span></div>
+              </div>
               <h3><i class="ti ti-tool"></i>Yetenek & Beceriler</h3>
               <div class="cv-text" id="cv-display-skills">—</div>
             </div>
@@ -343,6 +342,14 @@ body.edit-mode .edit-only-flex{display:flex!important;}
           </div>
         </div>
         <div class="cv-form-sec">
+          <h3>Askerlik Durumu</h3>
+          <div style="display:flex;gap:0.5rem;">
+            <input class="cv-input" id="f-military" placeholder="Durum (örn. Yapıldı, Tecilli)" style="flex:1;margin:0">
+            <input class="cv-input" id="f-military-date" placeholder="Tarih (örn. 2022 / 2025'e kadar)" style="flex:1;margin:0">
+          </div>
+          <div style="margin-bottom:0.4rem;"></div>
+        </div>
+        <div class="cv-form-sec">
           <h3>Yetenek & Beceriler</h3>
           <textarea class="cv-textarea" id="f-skills" placeholder="Teknik analiz, risk yönetimi, Excel..."></textarea>
         </div>
@@ -361,7 +368,6 @@ body.edit-mode .edit-only-flex{display:flex!important;}
         </div>
       </div>
 
-    </div>
   </div>
 </div>
 
@@ -413,7 +419,7 @@ let cvEditOpen=false;
 let S={
   name:'Nusret Adıgüzel',title:'Trader & Yatırımcı',
   phone:'',email:'',address:'',
-  education:'',skills:'',photo:'',
+  education:'',skills:'',photo:'',military:'',militaryDate:'',
   certs:[],langs:[],
   markets:{viop:{budget:0,trades:[],pdfs:[]},kripto:{budget:0,trades:[],pdfs:[]},forex:{budget:0,trades:[],pdfs:[]}}
 };
@@ -488,6 +494,8 @@ function updateCVDisplay(){
   setText('cv-display-address',S.address||'—');
   setText('cv-display-education',S.education||'—');
   setText('cv-display-skills',S.skills||'—');
+  setText('cv-display-military',S.military||'—');
+  setText('cv-display-military-date',S.militaryDate||'—');
   // photo
   const img=document.getElementById('cv-photo-img');
   const ph=document.getElementById('cv-photo-placeholder');
@@ -520,6 +528,7 @@ function toggleCVEdit(){
     setVal('f-name',S.name);setVal('f-title',S.title);setVal('f-phone',S.phone);
     setVal('f-email',S.email);setVal('f-address',S.address);
     setVal('f-education',S.education);setVal('f-skills',S.skills);
+    setVal('f-military',S.military);setVal('f-military-date',S.militaryDate);
     renderCertEditList();renderLangEditList();
   }
 }
@@ -527,6 +536,7 @@ function saveCVEdit(){
   S.name=gv('f-name')||S.name;S.title=gv('f-title')||S.title;
   S.phone=gv('f-phone');S.email=gv('f-email');S.address=gv('f-address');
   S.education=gv('f-education');S.skills=gv('f-skills');
+  S.military=gv('f-military');S.militaryDate=gv('f-military-date');
   applyAll();saveAll();
   cvEditOpen=true;toggleCVEdit();
 }
@@ -565,7 +575,8 @@ function renderLangEditList(){
 
 // ── NAV ──
 function goTrading(){document.getElementById('screen-profile').classList.remove('active');document.getElementById('screen-trading').classList.add('active');renderGenel();}
-function goProfile(){document.getElementById('screen-trading').classList.remove('active');document.getElementById('screen-profile').classList.add('active');}
+function goCV(){document.getElementById('screen-profile').classList.remove('active');document.getElementById('screen-cv').classList.add('active');}
+function goProfile(){document.getElementById('screen-trading').classList.remove('active');document.getElementById('screen-cv').classList.remove('active');document.getElementById('screen-profile').classList.add('active');}
 function openSheet(id){document.getElementById(id).classList.add('open');}
 function closeSheet(id){document.getElementById(id).classList.remove('open');}
 function showTPage(id){
