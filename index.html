@@ -479,6 +479,8 @@ function tryUnlock(){
     document.getElementById('lock-fab').style.display='none';
     document.getElementById('lock-input').value='';
     document.getElementById('lock-err').textContent='';
+    MARKETS.forEach(m=>renderMarketPage(m));
+    if(document.getElementById('tpage-genel').classList.contains('active'))renderGenel();
     updateCVDisplay();
   } else {
     document.getElementById('lock-err').textContent='Hatalı şifre!';
@@ -490,6 +492,7 @@ function exitEditMode(){
   document.getElementById('edit-bar').classList.remove('show');
   document.getElementById('lock-fab').style.display='flex';
   if(cvEditOpen){toggleCVEdit();}
+  MARKETS.forEach(m=>renderMarketPage(m));
   saveAll();
 }
 
@@ -755,7 +758,7 @@ function openModal(m,idx=null){
       <div class="fg">
         <label>GİRİŞ GÖRSELI</label>
         <div style="position:relative;">
-          <div id="entry-img-preview" style="width:100%;height:90px;border-radius:8px;background:var(--surface2);border:1px dashed var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;transition:border-color 0.15s;" onclick="document.getElementById('f-entry-img').click()">
+          <div id="entry-img-preview" style="width:100%;height:90px;border-radius:8px;background:var(--surface2);border:1px dashed var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;transition:border-color 0.15s;" onclick="window._lastImgTarget='entry';document.getElementById('f-entry-img').click()">
             ${trade.entryImg ? `<img src="${trade.entryImg}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">` : `<div style="text-align:center;"><i class="ti ti-camera" style="font-size:1.4rem;color:var(--muted);display:block;margin-bottom:4px;"></i><span style="font-size:0.65rem;color:var(--muted);">GİRİŞ</span></div>`}
           </div>
           <input type="file" id="f-entry-img" accept="image/*" style="display:none" onchange="previewTradeImg(event,'entry-img-preview','f-entry-img-data')">
@@ -766,7 +769,7 @@ function openModal(m,idx=null){
       <div class="fg">
         <label>ÇIKIŞ GÖRSELİ</label>
         <div style="position:relative;">
-          <div id="exit-img-preview" style="width:100%;height:90px;border-radius:8px;background:var(--surface2);border:1px dashed var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;transition:border-color 0.15s;" onclick="document.getElementById('f-exit-img').click()">
+          <div id="exit-img-preview" style="width:100%;height:90px;border-radius:8px;background:var(--surface2);border:1px dashed var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;transition:border-color 0.15s;" onclick="window._lastImgTarget='exit';document.getElementById('f-exit-img').click()">
             ${trade.exitImg ? `<img src="${trade.exitImg}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">` : `<div style="text-align:center;"><i class="ti ti-camera" style="font-size:1.4rem;color:var(--muted);display:block;margin-bottom:4px;"></i><span style="font-size:0.65rem;color:var(--muted);">ÇIKIŞ</span></div>`}
           </div>
           <input type="file" id="f-exit-img" accept="image/*" style="display:none" onchange="previewTradeImg(event,'exit-img-preview','f-exit-img-data')">
@@ -779,6 +782,39 @@ function openModal(m,idx=null){
 }
 function openLightbox(src){const lb=document.getElementById('lightbox');document.getElementById('lightbox-img').src=src;lb.style.display='flex';}
 function closeLightbox(){document.getElementById('lightbox').style.display='none';document.getElementById('lightbox-img').src='';}
+
+function openLightbox(src){const lb=document.getElementById('lightbox');document.getElementById('lightbox-img').src=src;lb.style.display='flex';}
+function closeLightbox(){document.getElementById('lightbox').style.display='none';document.getElementById('lightbox-img').src='';}
+
+// Ctrl+V ile görsel yapıştırma
+document.addEventListener('paste', function(e){
+  if(!editMode) return;
+  const modal = document.getElementById('trade-modal');
+  if(!modal.classList.contains('open')) return;
+  const items = e.clipboardData?.items;
+  if(!items) return;
+  for(let i=0;i<items.length;i++){
+    if(items[i].type.startsWith('image')){
+      const file = items[i].getAsFile();
+      const reader = new FileReader();
+      // Hangi kutu seçiliyse ona yapıştır — son tıklanan kutu
+      const target = window._lastImgTarget || 'entry';
+      reader.onload = ev => {
+        const previewId = target+'-img-preview';
+        const dataId = 'f-'+target+'-img-data';
+        const el = document.getElementById(previewId);
+        const dataEl = document.getElementById(dataId);
+        if(el && dataEl){
+          dataEl.value = ev.target.result;
+          el.innerHTML = `<img src="${ev.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`;
+          showToast('Görsel yapıştırıldı ✓');
+        }
+      };
+      reader.readAsDataURL(file);
+      break;
+    }
+  }
+});
 
 function previewTradeImg(event, previewId, dataId){
   const f=event.target.files[0];if(!f)return;
