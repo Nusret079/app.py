@@ -209,7 +209,12 @@ body.edit-mode .edit-only-flex{display:flex!important;}
 <!-- EDIT BAR -->
 <div class="edit-bar" id="edit-bar">
   <span><i class="ti ti-pencil" style="margin-right:6px"></i>Düzenleme Modu Aktif</span>
-  <button class="btn-exit-edit" onclick="exitEditMode()"><i class="ti ti-lock"></i> Kilitle</button>
+  <div style="display:flex;gap:0.5rem;align-items:center;">
+    <button class="btn-exit-edit" onclick="exportData()" style="border-color:#3ec6b0;color:#3ec6b0;"><i class="ti ti-download"></i> Dışa Aktar</button>
+    <label class="btn-exit-edit" for="import-file" style="border-color:#9b72e0;color:#9b72e0;cursor:pointer;"><i class="ti ti-upload"></i> İçe Aktar</label>
+    <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+    <button class="btn-exit-edit" onclick="exitEditMode()"><i class="ti ti-lock"></i> Kilitle</button>
+  </div>
 </div>
 
 <!-- LOCK FAB -->
@@ -431,6 +436,38 @@ let S={
 };
 
 // ── LOCK ──
+function exportData(){
+  const json=JSON.stringify(S,null,2);
+  const blob=new Blob([json],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='portfolio-veriler.json';
+  a.click();
+  showToast('Veriler dışa aktarıldı ✓');
+}
+
+function importData(event){
+  const f=event.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      S=data;
+      MARKETS.forEach(m=>{if(!S.markets[m])S.markets[m]={budget:0,trades:[],pdfs:[]};});
+      if(!S.certs)S.certs=[];if(!S.langs)S.langs=[];
+      localStorage.setItem('tpf_v6',JSON.stringify(S));
+      applyAll();
+      MARKETS.forEach(m=>renderMarketPage(m));
+      renderGenel();
+      showToast('Veriler içe aktarıldı ✓');
+    }catch(err){
+      showToast('Hatalı dosya!');
+    }
+  };
+  r.readAsText(f);
+  event.target.value='';
+}
+
 function showLockScreen(){document.getElementById('lock-input').value='';document.getElementById('lock-err').textContent='';document.getElementById('screen-lock').classList.add('active');}
 function closeLock(){document.getElementById('screen-lock').classList.remove('active');}
 function tryUnlock(){
