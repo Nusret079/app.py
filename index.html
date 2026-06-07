@@ -394,6 +394,12 @@ body.edit-mode .edit-only-flex{display:flex!important;}
   <div class="t-page" id="tpage-forex"></div>
 </div>
 
+<!-- LIGHTBOX -->
+<div id="lightbox" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:600;align-items:center;justify-content:center;" onclick="closeLightbox()">
+  <button onclick="closeLightbox()" style="position:absolute;top:1rem;right:1rem;width:38px;height:38px;border-radius:50%;background:var(--surface2);border:0.5px solid var(--border2);color:var(--text);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;"><i class="ti ti-x"></i></button>
+  <img id="lightbox-img" src="" style="max-width:92vw;max-height:88vh;object-fit:contain;border-radius:10px;" onclick="event.stopPropagation()">
+</div>
+
 <!-- TRADE MODAL -->
 <div class="modal-bg" id="trade-modal">
   <div class="modal">
@@ -653,8 +659,11 @@ function fmtD(m){if(m<60)return Math.round(m)+'dk';if(m<1440)return Math.round(m
 function renderTable(m){
   const d=S.markets[m],el=document.getElementById(m+'-table');if(!el)return;
   if(!d.trades.length){el.innerHTML='<p style="font-size:0.78rem;color:var(--muted);padding:0.8rem 0">Henüz işlem yok.</p>';return;}
-  const rows=d.trades.map((t,i)=>{const pnl=parseFloat(t.pnl)||0;const cls=pnl>0?'bg':pnl<0?'br':'bb';const del=editMode?`<button class="btn-danger" onclick="delTrade('${m}',${i})">Sil</button>`:'';return`<tr><td>${t.entryDate||'—'} ${t.entryTime||''}</td><td style="color:var(--text);font-weight:600">${t.symbol||'—'}</td><td>${t.lot||'—'}</td><td>${t.direction==='long'?'<span class="badge bg">LONG</span>':'<span class="badge br">SHORT</span>'}</td><td>${t.entryPrice||'—'}</td><td>${t.exitPrice||'—'}</td><td>${t.exitDate||'—'} ${t.exitTime||''}</td><td><span class="badge ${cls}">${pnl>=0?'+':''}${pnl.toLocaleString('tr-TR')} TL</span></td><td>${t.note||''}</td><td>${del}</td></tr>`;}).join('');
-  el.innerHTML=`<table><thead><tr><th>GİRİŞ</th><th>SEMBOL</th><th>LOT</th><th>YÖN</th><th>G.FİYAT</th><th>Ç.FİYAT</th><th>ÇIKIŞ</th><th>K/Z</th><th>NOT</th><th></th></tr></thead><tbody>${rows}</tbody></table>`;
+  const rows=d.trades.map((t,i)=>{const pnl=parseFloat(t.pnl)||0;const cls=pnl>0?'bg':pnl<0?'br':'bb';const del=editMode?`<button class="btn-danger" onclick="delTrade('${m}',${i})">Sil</button>`:'';
+    const entryThumb=t.entryImg?`<img src="${t.entryImg}" onclick="openLightbox('${t.entryImg}')" style="width:36px;height:36px;object-fit:cover;border-radius:5px;cursor:pointer;border:0.5px solid var(--border2);" title="${t.entryNote||'Giriş görseli'}">`:'-';
+    const exitThumb=t.exitImg?`<img src="${t.exitImg}" onclick="openLightbox('${t.exitImg}')" style="width:36px;height:36px;object-fit:cover;border-radius:5px;cursor:pointer;border:0.5px solid var(--border2);" title="${t.exitNote||'Çıkış görseli'}">`:'-';
+    return`<tr><td>${t.entryDate||'—'} ${t.entryTime||''}</td><td style="color:var(--text);font-weight:600">${t.symbol||'—'}</td><td>${t.lot||'—'}</td><td>${t.direction==='long'?'<span class="badge bg">LONG</span>':'<span class="badge br">SHORT</span>'}</td><td>${t.entryPrice||'—'}</td><td>${t.exitPrice||'—'}</td><td>${t.exitDate||'—'} ${t.exitTime||''}</td><td><span class="badge ${cls}">${pnl>=0?'+':''}${pnl.toLocaleString('tr-TR')} TL</span></td><td>${entryThumb}</td><td>${exitThumb}</td><td>${t.note||''}</td><td>${del}</td></tr>`;}).join('');
+  el.innerHTML=`<table><thead><tr><th>GİRİŞ</th><th>SEMBOL</th><th>LOT</th><th>YÖN</th><th>G.FİYAT</th><th>Ç.FİYAT</th><th>ÇIKIŞ</th><th>K/Z</th><th>G.GÖR</th><th>Ç.GÖR</th><th>NOT</th><th></th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
 function renderChart(m){
@@ -704,15 +713,52 @@ function openModal(m,idx=null){
     <div class="fg"><label>ÇIKIŞ TARİHİ</label><input type="date" id="f-xd" value="${trade.exitDate||''}"></div>
     <div class="fg"><label>ÇIKIŞ SAATİ</label><input type="time" id="f-xt" value="${trade.exitTime||''}"></div>
     <div class="fg"><label>KAR / ZARAR (TL)</label><input type="number" id="f-pnl" step="any" placeholder="-500 veya +1200" value="${trade.pnl||''}"></div>
-    <div class="fg"><label>NOT</label><input type="text" id="f-note" value="${trade.note||''}"></div>`;
+    <div class="fg"><label>NOT / STRATEJİ</label><input type="text" id="f-note" value="${trade.note||''}"></div>
+    <div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:0.7rem;margin-top:0.25rem;">
+      <div class="fg">
+        <label>GİRİŞ GÖRSELI</label>
+        <div style="position:relative;">
+          <div id="entry-img-preview" style="width:100%;height:90px;border-radius:8px;background:var(--surface2);border:1px dashed var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;transition:border-color 0.15s;" onclick="document.getElementById('f-entry-img').click()">
+            ${trade.entryImg ? `<img src="${trade.entryImg}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">` : `<div style="text-align:center;"><i class="ti ti-camera" style="font-size:1.4rem;color:var(--muted);display:block;margin-bottom:4px;"></i><span style="font-size:0.65rem;color:var(--muted);">GİRİŞ</span></div>`}
+          </div>
+          <input type="file" id="f-entry-img" accept="image/*" style="display:none" onchange="previewTradeImg(event,'entry-img-preview','f-entry-img-data')">
+          <input type="hidden" id="f-entry-img-data" value="${trade.entryImg||''}">
+        </div>
+        <input class="cv-input" id="f-entry-note" placeholder="Giriş notu..." value="${trade.entryNote||''}" style="margin-top:0.35rem;font-size:0.78rem;padding:0.45rem 0.7rem;">
+      </div>
+      <div class="fg">
+        <label>ÇIKIŞ GÖRSELİ</label>
+        <div style="position:relative;">
+          <div id="exit-img-preview" style="width:100%;height:90px;border-radius:8px;background:var(--surface2);border:1px dashed var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;transition:border-color 0.15s;" onclick="document.getElementById('f-exit-img').click()">
+            ${trade.exitImg ? `<img src="${trade.exitImg}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">` : `<div style="text-align:center;"><i class="ti ti-camera" style="font-size:1.4rem;color:var(--muted);display:block;margin-bottom:4px;"></i><span style="font-size:0.65rem;color:var(--muted);">ÇIKIŞ</span></div>`}
+          </div>
+          <input type="file" id="f-exit-img" accept="image/*" style="display:none" onchange="previewTradeImg(event,'exit-img-preview','f-exit-img-data')">
+          <input type="hidden" id="f-exit-img-data" value="${trade.exitImg||''}">
+        </div>
+        <input class="cv-input" id="f-exit-note" placeholder="Çıkış notu..." value="${trade.exitNote||''}" style="margin-top:0.35rem;font-size:0.78rem;padding:0.45rem 0.7rem;">
+      </div>
+    </div>`;
   document.getElementById('trade-modal').classList.add('open');
 }
+function openLightbox(src){const lb=document.getElementById('lightbox');document.getElementById('lightbox-img').src=src;lb.style.display='flex';}
+function closeLightbox(){document.getElementById('lightbox').style.display='none';document.getElementById('lightbox-img').src='';}
+
+function previewTradeImg(event, previewId, dataId){
+  const f=event.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    document.getElementById(dataId).value=e.target.result;
+    document.getElementById(previewId).innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`;
+  };
+  r.readAsDataURL(f);
+}
+
 function closeModal(){document.getElementById('trade-modal').classList.remove('open');curMarket=null;editIdx=null;}
 function gv(id){const el=document.getElementById(id);return el?el.value:'';}
 function setVal(id,v){const el=document.getElementById(id);if(el)el.value=v||'';}
 function saveTrade(){
   if(!editMode)return;
-  const trade={symbol:gv('f-sym'),lot:gv('f-lot'),direction:gv('f-dir'),entryPrice:gv('f-ep'),entryDate:gv('f-ed'),entryTime:gv('f-et'),exitPrice:gv('f-xp'),exitDate:gv('f-xd'),exitTime:gv('f-xt'),pnl:gv('f-pnl'),note:gv('f-note')};
+  const trade={symbol:gv('f-sym'),lot:gv('f-lot'),direction:gv('f-dir'),entryPrice:gv('f-ep'),entryDate:gv('f-ed'),entryTime:gv('f-et'),exitPrice:gv('f-xp'),exitDate:gv('f-xd'),exitTime:gv('f-xt'),pnl:gv('f-pnl'),note:gv('f-note'),entryImg:document.getElementById('f-entry-img-data')?.value||'',exitImg:document.getElementById('f-exit-img-data')?.value||'',entryNote:gv('f-entry-note'),exitNote:gv('f-exit-note')};
   if(editIdx!==null)S.markets[curMarket].trades[editIdx]=trade;else S.markets[curMarket].trades.push(trade);
   saveAll();closeModal();refreshMarket(curMarket);
   if(document.getElementById('tpage-genel').classList.contains('active'))renderGenel();
